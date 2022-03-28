@@ -1,7 +1,7 @@
 CPP_FLAGS = -std=c++17
 SOURCE = ../src/main.cpp
 DEPENDENCIAS = ../src/parse_utils/parse.cpp
-MAIN = ./main
+MAIN = ./pmt
 
 all: config
 
@@ -10,4 +10,5 @@ config:
 
 clean:
 	rm $(MAIN)
+
 
