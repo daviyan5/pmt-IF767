@@ -1,7 +1,7 @@
 #ifndef _HAVE_PARSE_H
 
 #define _HAVE_PARSE_H
-#include "getopt.h"
+
 #include <bits/stdc++.h>
 
 extern int algs_number;
@@ -10,9 +10,11 @@ using namespace std;
 
 enum ALGS_ENUM{
     ALG_BOYLER_MOORE,
-    ALG_WU_MANBER,
-    ALG_BRUTE_FORCE
-    
+    ALG_BRUTE_FORCE,
+    ALG_SHIFT_OR,
+    ALG_AHO_CORASICK,
+    ALG_SELLERS,
+    ALG_WU_MANBER
 };
 struct Args{
     bool only_count;            // Apenas conta as ocorrências
@@ -29,15 +31,18 @@ struct Args{
     int only_help;              // Apenas ajuda?
     int dist;                   // Distancia da busca aproximada
     int num_patt;               // Número de padrões
+    int num_threads;             // Número de threads
     int num_txt;                // Número de textos
     int alg;                    // Algoritimo usado
     int max_count;              // Máximo de ocorrências
 
     string patt_file;                   // Endereço do arquivo de padrões
     string out_file;                    // Arquivo de saída
-    vector<const char*> patterns;       // Array de padrões
-    vector<const char*> text_files;     // Endereços dos arquivos de texto
+    vector<char*> patterns;       // Array de padrões
+    vector<char*> text_files;     // Endereços dos arquivos de texto
+
 };
+char *get_alg_name(int pos);
 Args parse_commands(int argc,char *argv[]);
 
 #endif

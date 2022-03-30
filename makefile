@@ -1,6 +1,6 @@
-CPP_FLAGS = -std=c++17
+CPP_FLAGS = -std=c++17 -pthread
 SOURCE = ./src/main.cpp
-DEPENDENCIAS = ./src/parse_utils/parse.cpp
+DEPENDENCIAS = ./src/parse_utils/parse.cpp ./src/algorithms/algorithms.cpp ./src/algorithms/brute_force.cpp
 MAIN = ./bin/pmt
 
 all: config
