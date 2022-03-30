@@ -27,6 +27,7 @@ struct Args{
     bool show_info;             // Mostra informações da instância
     bool is_patt_file;          // O padrão foi dado por um arquivo
     bool failed;                // Deu ruim
+    bool print_whole;           // Printa todo o texto, com highlights onde aparece o padrão
     
     int only_help;              // Apenas ajuda?
     int dist;                   // Distancia da busca aproximada

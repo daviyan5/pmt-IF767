@@ -21,7 +21,7 @@ struct option long_options[] = {
     {"ignore", no_argument, NULL, 'i'},
     {"show", no_argument, NULL, 'n'},
     {"output", required_argument, NULL,'o'},
-    {"thread", required_argument,NULL,'t'},
+    {"whole", no_argument,NULL,'w'},
 	{ 0, 0, 0, 0 }
 };
 
@@ -37,6 +37,7 @@ void init_args(Args &pmt){
     pmt.reverse = false;      
     pmt.show_info = false;     
     pmt.is_patt_file = false;
+    pmt.print_whole = true;
 
     pmt.dist = 0;
     pmt.num_patt = 0;
@@ -81,14 +82,16 @@ void print_helper(){
 
     print_option("-i, --ignore:","Ignora o casing no casamento entre padrões.\n");
 
-    print_option("-n, --show:","Mostra as informações da instância.\n");
+    print_option("-n, --show:","Mostra informações da instância e da execução.\n");
 
     print_option("-o, --output SAIDA:","Salva o resultado em um arquivo SAIDA.\n");
+
+    print_option("-w, --whole:","Printa todo o texto, ao invés de printar apenas as linhas em que o padrão aparece\n");
 
 }
 
 void print_info(Args &pmt){
-    printf("\n##### INFORMAÇÕES #####\n\n");
+    printf("\n##### INFORMAÇÕES #######################################################\n\n");
     if(!pmt.is_mult_patt){
         printf("Padrão procurado: %s\n",pmt.patterns[0]);
     }
@@ -139,7 +142,7 @@ Args parse_commands(int argc,char *argv[]){
     Args pmt_args;
     init_args(pmt_args);
     int opt;
-    while((opt = getopt_long(argc, argv, "he:a:csp:im:no:",long_options,NULL)) != -1){
+    while((opt = getopt_long(argc, argv, "he:a:csp:im:no:w",long_options,NULL)) != -1){
         if(opt == 'h' and pmt_args.only_help == 0) pmt_args.only_help = 1;
         else pmt_args.only_help = 2;
         switch(opt){ 
@@ -180,6 +183,9 @@ Args parse_commands(int argc,char *argv[]){
             case 'o':
                 pmt_args.is_out_txt = true;
                 pmt_args.out_file = argv[optind];
+                break;
+            case 'w':
+                pmt_args.print_whole = true;
                 break;
             
         }

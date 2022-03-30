@@ -39,6 +39,7 @@ void init_params_mul(Args &pmt){        // TODO
        
     }
 }
+
 void debug(vector<vector<int>> &alg_used, Args &pmt){
     for(int text = 0; text < pmt.num_txt; text++){
         for(int patt = 0; patt < pmt.num_patt; patt++){
@@ -47,8 +48,19 @@ void debug(vector<vector<int>> &alg_used, Args &pmt){
            printf("Parametros da thread, padrao = %s, dist = %d\n",threads_params_sg[text][patt].patt,dist);
         }
     }
-    printf("\n#######################\n\n");
+    printf("\n#########################################################################\n\n");
+
 }
+void free_all(Args &pmt){
+    for(int i = 0; i < pmt.num_txt; i++){
+        for(int j = 0; j < pmt.num_patt; j++){
+            free(threads_params_sg[i][j].patt);
+            free(threads_params_sg[i][j].txt);
+            free(threads_ret_sg[i][j].occ);
+        }
+    }
+}
+
 void manage_algorithms(Args &pmt){
     vector<vector<int>> alg_used(pmt.num_txt,vector<int>(pmt.num_patt,pmt.alg));
 
@@ -93,8 +105,9 @@ void manage_algorithms(Args &pmt){
                                algs[a_use],&threads_params_sg[text_number][patt_number]);
                 patt_number++;   
             }
-            printf("\n");
+
         }
+        free(text);
         text_number += 1;
     }
     for(int i = 0; i < pmt.num_txt;i++){
@@ -131,6 +144,6 @@ void manage_algorithms(Args &pmt){
             4 - Dar free nas coisas
             5 - Corrigir bugs (lol)
     */
-
+    free_all(pmt);
 
 }
