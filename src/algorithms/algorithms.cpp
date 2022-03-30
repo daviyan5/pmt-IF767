@@ -143,6 +143,11 @@ void manage_algorithms(Args &pmt){
             3 - Lidar com as flags de opções
             4 - Dar free nas coisas
             5 - Corrigir bugs (lol)
+            6 - Melhorar o tempo de leitura
+            7 - Deixar o código mais legível
+            8 - Definir condições de escolha de algoritmos
+            9 - Remover Clock()
+            
     */
     free_all(pmt);
 
