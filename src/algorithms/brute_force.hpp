@@ -1,7 +1,8 @@
 #ifndef H_BRUTE_FORCE
 #define H_BRUTE_FORCE
+#include "algorithms.hpp"
 
-void *bruteforce(void *args);
+alg_print_ret_sg bruteforce(char *text, char *patt, int patt_size,int text_size, int line_number,int max_count,bool ignore_case);
 
 
 #endif 

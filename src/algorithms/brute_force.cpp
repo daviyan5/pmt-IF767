@@ -1,43 +1,36 @@
 #include "stdio.h"
 #include "string.h"
 #include "stdlib.h"
-#include "pthread.h"
+#include "alg_utils_sg.hpp"
 #include "brute_force.hpp"
-#include "algorithms.hpp"
-#include "time.h"
 
-void *bruteforce(void *args){
-    alg_params_sg *params;
-    params = (alg_params_sg*) args;
-    alg_ret_sg *ret;
-    ret = new alg_ret_sg();
-    clock_t start, end;
+
+
+alg_print_ret_sg bruteforce(char *text, char *patt, int patt_size,int text_size, int line_number,int max_count,bool ignore_case){
+    alg_print_ret_sg ret;
+    ret.num_occ = 0;
+    ret.occ = (int *) malloc(1 * sizeof(int));
     int size = 1;
-    ret->num = 0;
-    ret->occ = (int *) malloc(size * sizeof(int));
-    start = clock();
-    int n = strlen(params->txt);
-    int m = strlen(params->patt);        
-             
-    for(int i = 0; i < n; i++){
+    for(int i = 0; i < text_size; i++){
         bool foi = true;
-        for(int j = 0; j < m; j++){
-            if( i + j >= n or params->txt[i+j] != params->patt[j]){
+        for(int j = 0; j < patt_size; j++){
+            bool diff = i + j >= text_size? true: ignore_case? tolower(text[i+j]) != tolower(patt[j]) : text[i+j] != patt[j]; 
+            if(diff){
                 foi = false;
                 break;
             }
         }
         if(foi){
-            ret->occ[ret->num] = i;
-            ret->num ++;
-            if(ret->num >= size){
+            ret.num_occ++;
+            ret.occ[ret.num_occ-1] = i;
+            if(size == ret.num_occ){
                 size *= 2;
-                ret->occ = (int *) realloc(ret->occ,size * sizeof(int));
-            } 
+                ret.occ = (int*) realloc(ret.occ,size * sizeof(int));
+            }
+            if(ret.num_occ == max_count) break;
         }
     }
-
-    end = clock();
-    ret->time = (double) (end - start) / CLOCKS_PER_SEC;
-    pthread_exit(ret);
+    
+    
+    return ret;
 }

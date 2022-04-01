@@ -1,34 +1,18 @@
 #include "stdio.h"
 #include "string.h"
 #include "stdlib.h"
-#include "pthread.h"
+#include "alg_utils_sg.hpp"
 //#include "alg_name.hpp"
 #include "algorithms.hpp"
-#include "time.h"
 
-void *alg_name(void *args){
-    alg_params_sg *params;
-    params = (alg_params_sg*) args;
-    alg_ret_sg *ret;
-    ret = new alg_ret_sg();
-    clock_t start, end;
+
+alg_print_ret_sg alg_name(char *text, char *patt, int patt_size,int text_size, int line_number,int max_count){
+    alg_print_ret_sg ret;
+    ret.num_occ = 0;
+    ret.occ = (int *) malloc(1 * sizeof(int));
     int size = 1;
-    ret->num = 0;
-    ret->occ = (int *) malloc(size * sizeof(int));
-    start = clock();
-    int n = strlen(params->txt);
-    int m = strlen(params->patt);        
-             
-    /*
-
-            ALGORITMO AQUI
-
-
-    */
-
-
-    end = clock();
-    free(params);
-    ret->time = (double) (end - start) / CLOCKS_PER_SEC;
-    pthread_exit(ret);
+    
+    // ALGORITMO AQUI
+    
+    return ret;
 }
