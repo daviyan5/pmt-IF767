@@ -43,12 +43,12 @@ void print_occ(char *text, int *occ, int num_occ, int text_size, int line_number
         
     }
 }
-alg_print_ret_sg send_to_func(alg_params_sg *params,char *text,int text_size,int patt_size,int line_number,int max_count){
+alg_print_ret_sg send_to_func(alg_params_sg *params,char *text,int text_size,int patt_size,int max_count){
     switch(params->func){
         case ALG_BOYLER_MOORE:
             break;
         case ALG_BRUTE_FORCE:
-            return bruteforce(text,params->patt,patt_size,text_size,line_number,max_count,ignore_case);
+            return bruteforce(text,params->patt,patt_size,text_size,max_count,ignore_case);
             break;
         case ALG_SHIFT_OR:
             break;
@@ -57,7 +57,7 @@ alg_print_ret_sg send_to_func(alg_params_sg *params,char *text,int text_size,int
         case ALG_UKKONEN:
             break;
         default:
-            return bruteforce(text,params->patt,patt_size,text_size,line_number,max_count,ignore_case);
+            return bruteforce(text,params->patt,patt_size,text_size,max_count,ignore_case);
             break;
 
     }
@@ -69,7 +69,6 @@ void *prepare_sg_func(void *args){
     int max_count = params->max_count;
 
     clock_t start, end;
-    int size = 1;
     int num_occ = 0;
     
     char text[TEXT_MAX_SIZE];
@@ -83,7 +82,7 @@ void *prepare_sg_func(void *args){
     start = clock();
     while(fgets(text,TEXT_MAX_SIZE,txt_file)){
         int text_size = strlen(text);
-        alg_print_ret_sg temp = send_to_func(params,text,text_size,patt_size,line_number,max_count);
+        alg_print_ret_sg temp = send_to_func(params,text,text_size,patt_size,max_count);
         num_occ += temp.num_occ;
         max_count -= temp.num_occ;
         if(max_count == 0) break;

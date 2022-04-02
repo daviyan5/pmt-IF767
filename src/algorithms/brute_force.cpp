@@ -6,11 +6,11 @@
 
 
 
-alg_print_ret_sg bruteforce(char *text, char *patt, int patt_size,int text_size, int line_number,int max_count,bool ignore_case){
+alg_print_ret_sg bruteforce(char *text, char *patt, int patt_size,int text_size, int max_count,bool ignore_case){
     alg_print_ret_sg ret;
     ret.num_occ = 0;
     ret.occ = (int *) malloc(1 * sizeof(int));
-    int size = 1;
+    int occ_size = 1;
     for(int i = 0; i < text_size; i++){
         bool foi = true;
         for(int j = 0; j < patt_size; j++){
@@ -23,9 +23,9 @@ alg_print_ret_sg bruteforce(char *text, char *patt, int patt_size,int text_size,
         if(foi){
             ret.num_occ++;
             ret.occ[ret.num_occ-1] = i;
-            if(size == ret.num_occ){
-                size *= 2;
-                ret.occ = (int*) realloc(ret.occ,size * sizeof(int));
+            if(occ_size == ret.num_occ){
+                occ_size *= 2;
+                ret.occ = (int*) realloc(ret.occ,occ_size * sizeof(int));
             }
             if(ret.num_occ == max_count) break;
         }

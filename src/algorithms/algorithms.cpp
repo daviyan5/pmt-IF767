@@ -61,7 +61,7 @@ void debug(vector<vector<int>> &alg_used, Args &pmt){
     for(int text = 0; text < pmt.num_txt; text++){
         for(int patt = 0; patt < pmt.num_patt; patt++){
            printf("Algoritmo usado no texto %s padrão %s = %s\n",pmt.text_files[text],pmt.patterns[patt],get_alg_name(alg_used[text][patt]));
-           int dist = pmt.dist;
+           
         }
     }
     printf("\n#########################################################################\n\n");
