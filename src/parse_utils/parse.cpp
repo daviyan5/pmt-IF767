@@ -7,7 +7,7 @@
 using namespace std;
 
 int algs_number = 7;
-char alg_names[][30] = {"boyermoore","bruteforce","shiftor","ahocorasick","sellers","wumanber","ukkonen"};
+char alg_names[][30] = {"boyermoore","bruteforce","kmp","ahocorasick","sellers","wumanber","ukkonen"};
 
 char *get_alg_name(int pos){ return alg_names[pos];}
 struct option long_options[] = {

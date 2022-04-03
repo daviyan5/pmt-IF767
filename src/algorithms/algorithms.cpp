@@ -4,6 +4,7 @@
 #include "algorithms.hpp"
 #include "alg_utils_sg.hpp"
 
+
 #include "pthread.h"
 using namespace std;
 
@@ -18,8 +19,8 @@ vector<vector<alg_params_sg>> threads_params_sg;
 vector<alg_params_mul> threads_params_mul;
 
 
-int decide_alg(Args &pmt,int text,int patt){
-    return ALG_BRUTE_FORCE;
+int decide_alg(Args &pmt, int text, int patt){
+    return ALG_KMP;
 }
 
 void init_threads_sg(Args &pmt,vector<vector<int>> &alg_used,pthread_t **pmt_threads){
@@ -33,7 +34,7 @@ void init_threads_sg(Args &pmt,vector<vector<int>> &alg_used,pthread_t **pmt_thr
             threads_params_sg[i][j].patt = (char *) malloc((strlen(pmt.patterns[j]) + 1) * sizeof(char));
             strcpy(threads_params_sg[i][j].patt,pmt.patterns[j]);
             threads_params_sg[i][j].file_name = (char *) malloc((strlen(pmt.text_files[i]) + 1) * sizeof(char));
-            strcpy(threads_params_sg[i][j].file_name,pmt.text_files[i]);
+            strcpy(threads_params_sg[i][j].file_name, pmt.text_files[i]);
             if(is_out_file){
                 char *f_temp = (char*) malloc((500 * sizeof(char)));
                 threads_params_sg[i][j].out_file = (char*) malloc((500 * sizeof(char)));

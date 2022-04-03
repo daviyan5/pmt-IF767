@@ -11,7 +11,7 @@ using namespace std;
 enum ALGS_ENUM{
     ALG_BOYLER_MOORE,
     ALG_BRUTE_FORCE,
-    ALG_SHIFT_OR,
+    ALG_KMP,
     ALG_AHO_CORASICK,
     ALG_SELLERS,
     ALG_WU_MANBER,
@@ -36,9 +36,9 @@ struct Args{
     int max_count;              // Máximo de ocorrências
 
     string patt_file;                   // Endereço do arquivo de padrões
-    char* out_file;                    // Arquivo de saída
-    vector<char*> patterns;       // Array de padrões
-    vector<char*> text_files;     // Endereços dos arquivos de texto
+    char* out_file;                     // Arquivo de saída
+    vector<char*> patterns;             // Array de padrões
+    vector<char*> text_files;           // Endereços dos arquivos de texto
 
 };
 char *get_alg_name(int pos);

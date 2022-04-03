@@ -4,6 +4,7 @@
 #include "pthread.h"
 #include "time.h"
 #include "brute_force.hpp"
+#include "kmp.hpp"
 #include "algorithms.hpp"
 
 
@@ -43,6 +44,7 @@ void print_occ(char *text, int *occ, int num_occ, int text_size, int line_number
         
     }
 }
+
 alg_print_ret_sg send_to_func(alg_params_sg *params,char *text,int text_size,int patt_size,int max_count){
     switch(params->func){
         case ALG_BOYLER_MOORE:
@@ -50,7 +52,8 @@ alg_print_ret_sg send_to_func(alg_params_sg *params,char *text,int text_size,int
         case ALG_BRUTE_FORCE:
             return bruteforce(text,params->patt,patt_size,text_size,max_count,ignore_case);
             break;
-        case ALG_SHIFT_OR:
+        case ALG_KMP:
+            return kmp(text,params->patt,patt_size,text_size,max_count,ignore_case);
             break;
         case ALG_SELLERS:
             break;

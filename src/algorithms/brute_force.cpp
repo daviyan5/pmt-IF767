@@ -11,6 +11,7 @@ alg_print_ret_sg bruteforce(char *text, char *patt, int patt_size,int text_size,
     ret.num_occ = 0;
     ret.occ = (int *) malloc(1 * sizeof(int));
     int occ_size = 1;
+    
     for(int i = 0; i < text_size; i++){
         bool foi = true;
         for(int j = 0; j < patt_size; j++){
