@@ -3,35 +3,38 @@
 #include "stdlib.h"
 #include "pthread.h"
 #include "time.h"
+
 #include "brute_force.hpp"
 #include "kmp.hpp"
+#include "boyermoore.hpp"
+#include "sellers.hpp"
+
 #include "algorithms.hpp"
+#include "pre_processing.hpp"
 
 
 #define TEXT_MAX_SIZE 1000000
 
-void blue(){
-    printf("\x1b[34m");
-}
-void red(){
-    printf("\x1b[31m");
-}
-void default_colour(){
-    printf("\x1b[0m");
-}
-void print_occ(char *text, int *occ, int num_occ, int text_size, int line_number, int patt_size, char *file_name,FILE *out_file){
+
+void print_occ_sg(char *text, int *occ, int num_occ, int text_size, int line_number, int patt_size, char *file_name,FILE *out_file){
     int counter = 0;
     int cursor = 0;
     blue();
     if(is_out_file) fprintf(out_file,"\n%d Occurrences in Line %d of %s\n",num_occ, line_number, file_name);
     else printf("\n%d Occurrences in Line %d of %s\n",num_occ, line_number, file_name);
     default_colour();
+    int temp_cursor = 0;
+    while(temp_cursor < num_occ and occ[temp_cursor] < 0){
+        occ[temp_cursor] = 0;
+        temp_cursor++;
+        counter++;
+    }
     for(int i = 0; i < text_size; i++){
         if(occ[cursor] == i){
             cursor++;
             counter = 1;
         }
-        if(counter == 0 or counter == patt_size + 1){
+        if(counter == 0 or counter >= patt_size + 1){
             counter = 0;
             default_colour();
         }
@@ -43,28 +46,32 @@ void print_occ(char *text, int *occ, int num_occ, int text_size, int line_number
         else printf("%c",text[i]);
         
     }
+    default_colour();
+    printf("\n");
 }
 
-alg_print_ret_sg send_to_func(alg_params_sg *params,char *text,int text_size,int patt_size,int max_count){
+alg_print_ret_sg send_to_func_sg(alg_params_sg *params,char *text,int text_size,int patt_size,int max_count){
     switch(params->func){
-        case ALG_BOYLER_MOORE:
+        case ALG_BOYER_MOORE:
+            return boyermoore(text,params->patt,patt_size,text_size,max_count,ignore_case,bad_char[params->patt_idx],good_suffix[params->patt_idx]);
             break;
         case ALG_BRUTE_FORCE:
             return bruteforce(text,params->patt,patt_size,text_size,max_count,ignore_case);
             break;
         case ALG_KMP:
-            return kmp(text,params->patt,patt_size,text_size,max_count,ignore_case);
+
+            return kmp(text,params->patt,patt_size,text_size,max_count,ignore_case,strict_nxt[params->patt_idx]);
             break;
         case ALG_SELLERS:
+            return sellers(text,params->patt,patt_size,text_size,max_count,dist,ignore_case);
             break;
         case ALG_UKKONEN:
             break;
         default:
-            return bruteforce(text,params->patt,patt_size,text_size,max_count,ignore_case);
+            return boyermoore(text,params->patt,patt_size,text_size,max_count,ignore_case,bad_char[params->patt_idx],good_suffix[params->patt_idx]);
             break;
-
     }
-
+    return boyermoore(text,params->patt,patt_size,text_size,max_count,ignore_case,bad_char[params->patt_idx],good_suffix[params->patt_idx]);
 }
 void *prepare_sg_func(void *args){
     alg_params_sg *params;
@@ -75,7 +82,7 @@ void *prepare_sg_func(void *args){
     int num_occ = 0;
     
     char text[TEXT_MAX_SIZE];
-    int patt_size = strlen(params->patt);
+    int patt_size = params->patt_size;
     int line_number = 0;
     FILE *txt_file = fopen(params->file_name,"r");
     FILE *out_file;
@@ -85,14 +92,14 @@ void *prepare_sg_func(void *args){
     start = clock();
     while(fgets(text,TEXT_MAX_SIZE,txt_file)){
         int text_size = strlen(text);
-        alg_print_ret_sg temp = send_to_func(params,text,text_size,patt_size,max_count);
+        alg_print_ret_sg temp = send_to_func_sg(params,text,text_size,patt_size,max_count);
         num_occ += temp.num_occ;
         max_count -= temp.num_occ;
         if(max_count == 0) break;
         else{
             if(temp.num_occ > 0 and !only_count){
                 pthread_mutex_lock(&global_mutex);
-                print_occ(text,temp.occ,temp.num_occ,text_size,line_number,patt_size,params->file_name,out_file);
+                print_occ_sg(text,temp.occ,temp.num_occ,text_size,line_number,patt_size,params->file_name,out_file);
                 pthread_mutex_unlock(&global_mutex);
             }
         }

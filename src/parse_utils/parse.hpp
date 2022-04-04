@@ -9,7 +9,7 @@ extern char alg_names[][30];
 using namespace std;
 
 enum ALGS_ENUM{
-    ALG_BOYLER_MOORE,
+    ALG_BOYER_MOORE,
     ALG_BRUTE_FORCE,
     ALG_KMP,
     ALG_AHO_CORASICK,
@@ -39,7 +39,7 @@ struct Args{
     char* out_file;                     // Arquivo de saída
     vector<char*> patterns;             // Array de padrões
     vector<char*> text_files;           // Endereços dos arquivos de texto
-
+    vector<int> patt_size;
 };
 char *get_alg_name(int pos);
 Args parse_commands(int argc,char *argv[]);

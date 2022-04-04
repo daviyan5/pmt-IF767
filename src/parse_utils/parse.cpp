@@ -5,7 +5,7 @@
 #include "parse.hpp"
 
 using namespace std;
-
+const int PATT_MAX_SIZE = 100000;
 int algs_number = 7;
 char alg_names[][30] = {"boyermoore","bruteforce","kmp","ahocorasick","sellers","wumanber","ukkonen"};
 
@@ -121,17 +121,22 @@ int parse_alg(char *alg_name){
 }
 
 void read_pattern_file(Args &pmt){
-    ifstream file;
-    file.open(pmt.patt_file);
-    string temp;
-    while(getline(file,temp)){
-        char *c = (char*) malloc((temp.size()+1) * sizeof(char));
-        strcpy(c,temp.c_str());
+    FILE *file;
+    file = fopen(pmt.patt_file.c_str(), "r");
+    char temp[PATT_MAX_SIZE];
+    while(fgets(temp, PATT_MAX_SIZE,file)){ 
+        int len = strlen(temp);
+        if(temp[len - 1] == '\n'){
+            temp[len - 1] = '\0';
+            len -= 1;
+        }
+        char *c = (char*) malloc((len + 1) * sizeof(char));
+        strcpy(c, temp);
         pmt.patterns.push_back(c);
         pmt.num_patt += 1;
     }
     if(pmt.patterns.size() > 0) pmt.is_mult_patt = true;
-    file.close();
+    fclose(file);
 }
 
 Args parse_commands(int argc,char *argv[]){
@@ -167,7 +172,6 @@ Args parse_commands(int argc,char *argv[]){
                 break;
             case 'm':
                 pmt_args.max_count = atoi(optarg);
-
                 break;
             case 'n':
                 pmt_args.show_info = true;
@@ -203,6 +207,9 @@ Args parse_commands(int argc,char *argv[]){
             pmt_args.num_txt += 1;
             pmt_args.text_files.push_back(argv[i]);
         }
+    }
+    for(auto &patt:pmt_args.patterns){
+        pmt_args.patt_size.push_back(strlen(patt));
     }
     pmt_args.num_threads = pmt_args.num_txt * pmt_args.num_patt;
     if(pmt_args.show_info) print_info(pmt_args);
