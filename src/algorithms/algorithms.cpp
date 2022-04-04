@@ -142,11 +142,6 @@ void free_all_mul(Args &pmt){
             free(threads_params_mul[i].patt[j]);
         }
     }
-    for(int j = 0; j < pmt.num_patt; j++){
-        free(strict_nxt[j]);
-        free(good_suffix[j]);
-        free(bad_char[j]);
-    }
     free(strict_nxt);
     free(good_suffix);
     free(bad_char);

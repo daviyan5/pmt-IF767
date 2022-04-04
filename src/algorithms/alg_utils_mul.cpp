@@ -12,7 +12,7 @@
 
 #define TEXT_MAX_SIZE 1000000
 
-void print_occ_mul(char *text, int **occ, int *num_occ, int total_occ, int text_size,int num_patt, int line_number, int *patt_size, 
+void print_occ_mul(char *text, alg_print_ret_mul &temp, int total_occ, int text_size,int num_patt, int line_number, int *patt_size, 
                char *file_name,FILE *out_file)
 {
     blue();
@@ -23,10 +23,10 @@ void print_occ_mul(char *text, int **occ, int *num_occ, int total_occ, int text_
     int *counter = (int*) calloc(num_patt,sizeof(int));
     for(int i = 0; i < text_size; i++){
         for(int j = 0; j < num_patt; j++){
-            if(counter[j] < num_occ[j] and occ[j][counter[j]] == i){
-                int pos = occ[j][counter[j]];
+            if(counter[j] < temp.num_occ[j] and temp.occ[j][counter[j]] == i){
+                int pos = temp.occ[j][counter[j]];
                 counter[j]++;
-                for(int k = pos; k < patt_size[j]; k++) paint[k] = true;
+                for(int k = 0; k < patt_size[j]; k++) paint[k+pos] = true;
             }
         }
         if(paint[i]) red();
@@ -35,6 +35,8 @@ void print_occ_mul(char *text, int **occ, int *num_occ, int total_occ, int text_
         else printf("%c",text[i]);
         
     }
+    free(paint);
+    free(counter);
     default_colour();
     printf("\n");
 }
@@ -74,12 +76,13 @@ void *prepare_mul_func(void *args){
         int local_occ = 0;
         for(int i = 0; i < params->num_patt; i++){
             num_occ[i] += temp.num_occ[i];
-            local_occ += num_occ[i];
+            local_occ += temp.num_occ[i];
             if(temp.num_occ[i] > 0) some_occ = true;
         }
+        total_occ += local_occ;
         if(some_occ > 0 and !only_count){
             pthread_mutex_lock(&global_mutex);
-            print_occ_mul(text,temp.occ,temp.num_occ,total_occ - local_occ,text_size,params->num_patt,line_number,patt_size,params->file_name,out_file);
+            print_occ_mul(text,temp,local_occ,text_size,params->num_patt,line_number,patt_size,params->file_name,out_file);
             pthread_mutex_unlock(&global_mutex);
         }
         line_number += 1;

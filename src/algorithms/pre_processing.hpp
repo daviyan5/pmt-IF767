@@ -7,7 +7,7 @@ extern int **strict_nxt, **bad_char, **good_suffix;
 extern int **aho_occ, *aho_qnt_occ;
 extern int **aho_go_to, *aho_fail;
 extern int size_goto, occ_size;
-const int alpha_len = 256;
+const int alpha_len = 128;
 
 struct Node{
     int nxt_aho[alpha_len];

@@ -69,20 +69,12 @@ int *init_bad_char(char *pat, int patt_size, bool ignore_case,int *bc){
     return bc;
 }
 
-int** build_go_to(vector<char*> &pat_set, vector<int> &patt_size, int qnt_pat, int **occ, int *qnt_occ){
+void build_go_to(vector<char*> &pat_set, vector<int> &patt_size, int qnt_pat){
     int nxt = 1;
-    int **go_to;
-    
-    occ = (int**) malloc(sizeof(int*));
-    occ_size  = 1;
-    go_to = (int**) malloc(sizeof(int*));
-    size_goto = 1;
+    vector<vector<int>> temp_occ,temp_go_to;
 
-    go_to[0] = (int*) malloc(alpha_len * sizeof(int));
-
-    qnt_occ = (int*) calloc(qnt_pat, sizeof(int));
-    for(int i = 0; i < alpha_len; i++) go_to[0][i] = -1;
-
+    temp_go_to.push_back(vector<int>(alpha_len,-1));
+    temp_occ.push_back(vector<int>());
     for(int k = 0; k < qnt_pat; k++){
         
         char *pat = pat_set[k];
@@ -91,47 +83,57 @@ int** build_go_to(vector<char*> &pat_set, vector<int> &patt_size, int qnt_pat, i
         int node = 0, j = 0;
         int ch = pat[j];
 
-        while(j < m && go_to[node][ch] != -1){
-            node = go_to[node][ch];
+        while(j < m && temp_go_to[node][ch] != -1){
+            node = temp_go_to[node][ch];
             j++;
             ch = pat[j];
         }
         while(j < m){
-
             ch = pat[j];
-            go_to[node][ch] = nxt;
-
-            size_goto++;
-            go_to = (int**) realloc(go_to, size_goto * sizeof(int*));
-            go_to[size_goto - 1] = (int*)malloc(alpha_len * sizeof(int));
-            for(int i = 0; i < alpha_len; i++) go_to[size_goto - 1][i] = -1;
-
-            occ_size++;
-            occ = (int**) realloc(occ, occ_size * sizeof(int*));   
+            temp_go_to[node][ch] = nxt;
+            temp_go_to.push_back(vector<int>(alpha_len,-1));
+            temp_occ.push_back(vector<int>());
             node = nxt;
-            j++, nxt++;
+            j++;
+            nxt += 1;
         }
-
-        qnt_occ[node]++;
-        occ[node] = (int*) realloc(occ[node], qnt_occ[node]*sizeof(int));
-        occ[node][qnt_occ[node] - 1] = k;
+        temp_occ[node].push_back(k);
     }
     for(int i = 0; i < alpha_len; i++){
-        if(go_to[0][i] == -1) go_to[0][i] = 0;
+        if(temp_go_to[0][i] == -1) temp_go_to[0][i] = 0;
     }
-    return go_to;
+    size_goto = temp_go_to.size();
+    aho_go_to = (int **) malloc(size_goto * sizeof(int*));
+    for(int i = 0; i < size_goto; i++){
+        aho_go_to[i] = (int *) malloc(alpha_len * sizeof(int));
+        for(int j = 0; j < alpha_len; j++){
+            aho_go_to[i][j] = temp_go_to[i][j];
+            
+        }
+    }
+    occ_size = temp_occ.size();
+    aho_qnt_occ = (int *) malloc(occ_size * sizeof(int));
+    aho_occ = (int **) malloc(occ_size * sizeof(int*));
+    for(int i = 0; i < occ_size; i++){
+        aho_qnt_occ[i] = temp_occ[i].size();
+        aho_occ[i] = (int *) malloc(aho_qnt_occ[i] * sizeof(int));
+        for(int j = 0; j < aho_qnt_occ[i]; j++){
+            aho_occ[i][j] = temp_occ[i][j];
+            if(temp_occ[i][j] != -1) printf("occ[%d][%d] = %d\n",i,j,temp_occ[i][j]);
+        }
+    }
 }
 
-int* build_failure(int **go_to){
-    int *fail = (int*) malloc(alpha_len * sizeof(int));
-    for(int i = 0; i < alpha_len; i++) fail[i] = -1;
+void build_failure(int **go_to){
+    aho_fail = (int*) malloc(alpha_len * sizeof(int));
+    for(int i = 0; i < alpha_len; i++) aho_fail[i] = -1;
 
     queue<int> Q;
     for(int i = 0; i < alpha_len; i++){
         int temp = go_to[0][i];
         if(temp > 0){
             Q.push(temp);
-            fail[temp] = 0;
+            aho_fail[temp] = 0;
         }
     }
     while(!Q.empty()){
@@ -142,24 +144,25 @@ int* build_failure(int **go_to){
             
             if(vertex >= 0){
                 Q.push(vertex);
-                int f = fail[node];
+                int f = aho_fail[node];
+
                 while(go_to[f][pos] < 0){
-                    f = fail[f];
+                    f = aho_fail[f];
                 }
-                fail[vertex] = go_to[f][pos];
+
+                aho_fail[vertex] = go_to[f][pos];
                 int temp = aho_qnt_occ[vertex];
-                aho_qnt_occ[vertex] += aho_qnt_occ[fail[vertex]];
-                if(aho_qnt_occ[vertex] == 1) aho_occ[vertex] = (int*) malloc(aho_qnt_occ[vertex] * sizeof(int));
-                else aho_occ[vertex] = (int*) realloc(aho_occ[vertex], aho_qnt_occ[vertex] * sizeof(int));
+                aho_qnt_occ[vertex] += aho_qnt_occ[aho_fail[vertex]];
+
+                aho_occ[vertex] = (int*) realloc(aho_occ[vertex], aho_qnt_occ[vertex] * sizeof(int));
+
                 for(int inc = temp; inc < aho_qnt_occ[vertex]; inc++){
-                    aho_occ[vertex][inc] = aho_occ[fail[vertex]][inc - temp];
+                    aho_occ[vertex][inc] = aho_occ[aho_fail[vertex]][inc - temp];
                 }
             }
             
         }
     }
-
-    return fail;
 }
 
 int *init_good_suffix(char *pat, int patt_size, bool ignore_case, int *gs,int *ni){
@@ -185,8 +188,8 @@ void preprocess(Args &pmt,vector<vector<int>> &alg_used){
     good_suffix = (int**) malloc((pmt.num_patt) * sizeof(int*));
 
     if(pmt.is_mult_patt and alg_used[0][0] == ALG_AHO_CORASICK){
-        aho_go_to = build_go_to(pmt.patterns, pmt.patt_size, pmt.num_patt, aho_occ, aho_qnt_occ);
-        aho_fail = build_failure(aho_go_to);
+        build_go_to(pmt.patterns, pmt.patt_size, pmt.num_patt);
+        build_failure(aho_go_to);
     }
     else if(pmt.is_mult_patt and alg_used[0][0] == ALG_WU_MANBER){
 
