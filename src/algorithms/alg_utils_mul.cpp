@@ -109,7 +109,7 @@ void *prepare_mul_func(void *args){
     }
     
     
-    double total_time = (double) (end - start) / CLOCKS_PER_SEC;
+    
     if(only_count){
         pthread_mutex_lock(&global_mutex);
         if(is_out_file) fprintf(out_file,"\nIn %s: %d total occurrences.\n",params->file_name,total_occ);
