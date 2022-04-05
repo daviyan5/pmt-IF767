@@ -235,7 +235,7 @@ void manage_algorithms(Args &pmt){
     pthread_mutex_destroy(&global_mutex);
     if(is_mult_alg) free_all_mul(pmt);
     else free_all_sg(pmt,alg_used);
-    for(int i = 0; i < pmt.num_patt; i++){
-        if(pmt.patterns[i]) free(pmt.patterns[i]);
+    for(int i = 1; i < pmt.num_patt; i++){
+        free(pmt.patterns[i]);
     }
 }
