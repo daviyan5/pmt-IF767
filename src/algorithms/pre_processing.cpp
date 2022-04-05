@@ -165,10 +165,10 @@ void build_go_to(vector<char*> &pat_set, vector<int> &patt_size, int qnt_pat){
 
 // Constroi o fail da trie
 void build_failure(int **go_to){
-    aho_fail = (int*) malloc(alpha_len * sizeof(int));
+    aho_fail = (int*) malloc((size_goto+1) * sizeof(int));
     for(int i = 0; i < alpha_len; i++) aho_fail[i] = -1;
 
-    queue<int> Q;
+    Fila Q;
     for(int i = 0; i < alpha_len; i++){
         int temp = go_to[0][i];
         if(temp > 0){
@@ -181,7 +181,6 @@ void build_failure(int **go_to){
         Q.pop();
         for(int pos = 0; pos < alpha_len; pos++){
             int vertex = go_to[node][pos];
-            
             if(vertex >= 0){
                 Q.push(vertex);
                 int f = aho_fail[node];
@@ -203,6 +202,8 @@ void build_failure(int **go_to){
             
         }
     }
+    Q.free_all();
+    
 }
 
 int *init_good_suffix(char *pat, int patt_size, bool ignore_case, int *gs,int *ni){

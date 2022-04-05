@@ -120,8 +120,8 @@ void *prepare_mul_func(void *args){
     double total_time = (double) (end - start) / CLOCKS_PER_SEC;
     if(show_stt){
         pthread_mutex_lock(&global_mutex);
-        if(is_out_file) fprintf(out_file,"Spent time: %lf",total_time);
-        else printf("Spent time: %lf",total_time);
+        if(is_out_file) fprintf(out_file,"Spent time: %lf\n",total_time);
+        else printf("Spent time: %lf\n",total_time);
         pthread_mutex_unlock(&global_mutex);
     }
     free(num_occ);
