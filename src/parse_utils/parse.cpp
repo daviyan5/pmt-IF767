@@ -5,11 +5,17 @@
 #include "parse.hpp"
 
 using namespace std;
-const int PATT_MAX_SIZE = 100000;
-int algs_number = 7;
-char alg_names[][30] = {"boyermoore","bruteforce","kmp","ahocorasick","sellers","wumanber","ukkonen"};
 
-char *get_alg_name(int pos){ return alg_names[pos];}
+// Tamanho máximo de um padrão
+const int PATT_MAX_SIZE = 100000;
+
+// Número de algoritmos utilizados
+int algs_number = 6;
+
+// Nome dos algoritmos em string, usado somente para comparação com o argumento digitado pelo usuário e para o print
+char alg_names[][30] = {"boyermoore","bruteforce","kmp","ahocorasick","sellers","wumanber"};
+
+// Tradução das opções em long options
 struct option long_options[] = {
     {"help", no_argument, NULL, 'h'},
 	{"algorithm", required_argument, NULL, 'a'},
@@ -20,14 +26,21 @@ struct option long_options[] = {
     {"max", required_argument, NULL, 'm'},  
     {"ignore", no_argument, NULL, 'i'},
     {"show", no_argument, NULL, 'n'},
-    {"output", required_argument, NULL,'o'},
+    {"force", no_argument, NULL,'f'},
+    {"output", no_argument, NULL,'o'},
 
 	{ 0, 0, 0, 0 }
 };
 
+char *get_alg_name(int alg){
+    return alg_names[alg];
+}
+
+// Inicializa os argumentos do parsing
 void init_args(Args &pmt){
     pmt.only_help = 0;
     pmt.failed = false;
+    pmt.force_sg = false;
     pmt.only_count = false;   
     pmt.show_stt = false;      
     pmt.is_mult_patt = false;  
@@ -45,10 +58,11 @@ void init_args(Args &pmt){
     pmt.max_count = -1;  
 }
 
+// Função para printar o -h ou --help com um bom espaçamento
 void print_option(const char command[],const char description[]){
     printf("   %-28s %s\n",command,description);
 }
-
+// Printa o helper
 void print_helper(){
     printf("PMT: Casamento de Caracteres\n");
     printf("usage: ./pmt [options] pattern textfile [textfile...]\n\n");
@@ -81,11 +95,14 @@ void print_helper(){
 
     print_option("-n, --show:","Mostra informações da instância e da execução.\n");
 
+    print_option("-f, --force:","Força o uso de algoritmos single-pattern, para múltiplos padrões.\n");
+
     print_option("-o, --output:","Salva o resultado em um arquivo de SAIDA. Esse arquivo pode ser encontrado em ./bin/outputs\n");
 
 
 }
 
+// Função para auxiliar no debug, apenas ativada pela opção -n ou --show
 void print_info(Args &pmt){
     printf("\n##### INFORMAÇÕES #######################################################\n\n");
     if(!pmt.is_mult_patt){
@@ -113,6 +130,7 @@ void print_info(Args &pmt){
     
 }
 
+// Traduz o nome digitado pelo usuário em um inteiro que identifica o algoritmo
 int parse_alg(char *alg_name){
     for(int i = 0; i < algs_number; i++){
         if(strcmp(alg_name, alg_names[i]) == 0) return i;
@@ -120,9 +138,14 @@ int parse_alg(char *alg_name){
     return -1;
 }
 
+// Lê, linha por linha, os padrões em um arquivo pattern.txt
 void read_pattern_file(Args &pmt){
     FILE *file;
     file = fopen(pmt.patt_file.c_str(), "r");
+    if(!file){
+        printf("Erro ao abrir o arquivo de padrões!\n");
+        exit(1);
+    }
     char temp[PATT_MAX_SIZE];
     while(fgets(temp, PATT_MAX_SIZE,file)){ 
         int len = strlen(temp);
@@ -139,11 +162,14 @@ void read_pattern_file(Args &pmt){
     fclose(file);
 }
 
+// Função principal do arquivo, serve para manejar os argumentos e comandos da CLI
 Args parse_commands(int argc,char *argv[]){
     Args pmt_args;
     init_args(pmt_args);
     int opt;
-    while((opt = getopt_long(argc, argv, "he:a:csp:im:now",long_options,NULL)) != -1){
+
+    // Loop de leitura dos comandos
+    while((opt = getopt_long(argc, argv, "he:a:csp:im:nowf",long_options,NULL)) != -1){
         if(opt == 'h' and pmt_args.only_help == 0) pmt_args.only_help = 1;
         else pmt_args.only_help = 2;
         switch(opt){ 
@@ -175,6 +201,9 @@ Args parse_commands(int argc,char *argv[]){
                 break;
             case 'n':
                 pmt_args.show_info = true;
+                break;
+            case 'f':
+                pmt_args.force_sg = true;
                 break;
             case 'o':
                 pmt_args.is_out_txt = true;
@@ -208,6 +237,7 @@ Args parse_commands(int argc,char *argv[]){
             pmt_args.text_files.push_back(argv[i]);
         }
     }
+    // Calcula-se o tamanho de cada padrão previamente
     for(auto &patt:pmt_args.patterns){
         pmt_args.patt_size.push_back(strlen(patt));
     }

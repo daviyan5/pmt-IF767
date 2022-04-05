@@ -2,15 +2,16 @@
 #include "pre_processing.hpp"
 #include "string.h"
 
-Node *fsm;
-int **strict_nxt, **bad_char, **good_suffix;
-int **aho_occ, *aho_qnt_occ;
-int **aho_go_to, *aho_fail;
-int size_goto = 0, occ_size = 0;
-char *strrev(char *str, int str_len){
+int **strict_nxt, **bad_char, **good_suffix; // Next de borda estrita, mau caractere e bom sufixo
+int **aho_occ, *aho_qnt_occ;                 // Ocorrências (isLeaf) e número de ocorrências por nó da Trie
+int **aho_go_to, *aho_fail;                  // Filhos dos nós e array de fail
+int size_goto = 0, occ_size = 0;             // Tamanho da Trie e tamanho do vetor de ocorrências
+long long **C_wu;
+
+char *strrev(char *str, int str_len){       // Utilitário para reverter uma string
     int i = 0, j = str_len - 1;
     if(str_len <= 0) return str;
-    char *temp = (char*) malloc(str_len * sizeof(char));
+    char *temp = (char*) malloc((str_len + 1) * sizeof(char));
     strcpy(temp, str);
     while(i < j){
         swap(temp[i], temp[j]);
@@ -19,6 +20,7 @@ char *strrev(char *str, int str_len){
     return temp;
 }
 
+// Função utilizada para comparar dois caracteres, ignorando a diferença em casing de acordo com a flag ignore_case
 bool isEqual(char a, char b, bool ignore_case){
     if(ignore_case){
         a = tolower(a);
@@ -27,6 +29,39 @@ bool isEqual(char a, char b, bool ignore_case){
     return (a == b);
 }
 
+// Funcao utilizada no wu manber para tratar casos com ignore_case = true
+int isLatin(char c){
+    if(c >= 'a' && c <= 'z') return c;
+    else if(c >= 'A' && c <= 'Z') return c + 32;
+    else return -1;
+}
+
+// Cria a máscara de caracteres para o wu-manber
+long long *char_mask(long long *C,char *patt, int patt_size){
+    long long pos_mask = (1 << patt_size) - 2; 
+
+    C = (long long*) malloc(alpha_len * sizeof(long long)); 
+
+    for(int i = 0; i < alpha_len; i++) {
+        C[i] = (1 << patt_size) - 1;
+    }
+
+    for(int j = 0; j < patt_size; j++){
+        int letter = isLatin(patt[j]);
+        if(ignore_case && letter != -1){
+            C[letter] = C[letter] & pos_mask;
+        }
+        else{
+            C[patt[j]] = C[patt[j]] & pos_mask;
+        }
+
+        pos_mask = (pos_mask << 1LL) | 1LL;
+    }
+
+    return C;
+}
+
+// Inicializa os pulos de acordo com a borda estrita
 int* init_strict_next(char *pat, int patt_size, bool ignore_case, int *nxt){
     int m = patt_size;
     nxt = (int*) malloc((m + 1) * sizeof(int));
@@ -54,6 +89,7 @@ int* init_strict_next(char *pat, int patt_size, bool ignore_case, int *nxt){
     return nxt;
 }
 
+// Inicializa array do mau caractere
 int *init_bad_char(char *pat, int patt_size, bool ignore_case,int *bc){
     int l = alpha_len; 
     int m = patt_size;
@@ -69,9 +105,10 @@ int *init_bad_char(char *pat, int patt_size, bool ignore_case,int *bc){
     return bc;
 }
 
+// Constroi a Trie
 void build_go_to(vector<char*> &pat_set, vector<int> &patt_size, int qnt_pat){
     int nxt = 1;
-    vector<vector<int>> temp_occ,temp_go_to;
+    vector<vector<int>> temp_occ,temp_go_to; // Vetores dinâmicos temporários para preparar a Trie
 
     temp_go_to.push_back(vector<int>(alpha_len,-1));
     temp_occ.push_back(vector<int>());
@@ -102,6 +139,8 @@ void build_go_to(vector<char*> &pat_set, vector<int> &patt_size, int qnt_pat){
     for(int i = 0; i < alpha_len; i++){
         if(temp_go_to[0][i] == -1) temp_go_to[0][i] = 0;
     }
+
+    // Conversão de vector para ponteiro
     size_goto = temp_go_to.size();
     aho_go_to = (int **) malloc(size_goto * sizeof(int*));
     for(int i = 0; i < size_goto; i++){
@@ -119,11 +158,12 @@ void build_go_to(vector<char*> &pat_set, vector<int> &patt_size, int qnt_pat){
         aho_occ[i] = (int *) malloc(aho_qnt_occ[i] * sizeof(int));
         for(int j = 0; j < aho_qnt_occ[i]; j++){
             aho_occ[i][j] = temp_occ[i][j];
-            if(temp_occ[i][j] != -1) printf("occ[%d][%d] = %d\n",i,j,temp_occ[i][j]);
+
         }
     }
 }
 
+// Constroi o fail da trie
 void build_failure(int **go_to){
     aho_fail = (int*) malloc(alpha_len * sizeof(int));
     for(int i = 0; i < alpha_len; i++) aho_fail[i] = -1;
@@ -172,6 +212,7 @@ int *init_good_suffix(char *pat, int patt_size, bool ignore_case, int *gs,int *n
     int *rni = init_strict_next(temp, m, ignore_case, rni);
     gs = (int*) malloc((m + 1) * sizeof(int));
     for(int i = 0; i < m + 1; i++) gs[i] = m - ni[m];
+    
     for(int i = 1; i < m; i++){
         int j = ((m - 1) - rni[i] + (m+1)) % (m+1);
         if(i - rni[i] < gs[j]) gs[j] = i - rni[i];
@@ -180,24 +221,30 @@ int *init_good_suffix(char *pat, int patt_size, bool ignore_case, int *gs,int *n
     free(rni);
     return gs; 
 }
-
+// Inicia o preprocessamento dos padrões em todos os algoritmos utilizados
 void preprocess(Args &pmt,vector<vector<int>> &alg_used){
 
     strict_nxt = (int**) malloc((pmt.num_patt) * sizeof(int*));
     bad_char = (int**) malloc((pmt.num_patt) * sizeof(int*));
     good_suffix = (int**) malloc((pmt.num_patt) * sizeof(int*));
-
+    C_wu = (long long **) malloc((pmt.num_patt) * sizeof(long long*));
+    // Se a flag ignore_case estiver ligada, transformamos todos os padrões em lowercase
+    if(ignore_case){
+        for(int i = 0; i < pmt.num_patt; i++){
+            for(int j = 0; j < pmt.patt_size[i]; j++){
+                pmt.patterns[i][j] = tolower(pmt.patterns[i][j]);
+            }
+        }
+    }
+    // Se o algoritmo utilizado for aho-corasick
     if(pmt.is_mult_patt and alg_used[0][0] == ALG_AHO_CORASICK){
         build_go_to(pmt.patterns, pmt.patt_size, pmt.num_patt);
         build_failure(aho_go_to);
     }
-    else if(pmt.is_mult_patt and alg_used[0][0] == ALG_WU_MANBER){
-
-    }
     else{
         for(int i = 0; i < pmt.num_patt; i++){
-            bool k = false, bm = false;
-            for(auto &txt: alg_used){
+            bool k = false, bm = false, wm = false;
+            for(auto &txt: alg_used){ // Verifica o algoritmo utilizado
                 switch(txt[i]){
                     case ALG_KMP:
                         k = true;
@@ -205,12 +252,19 @@ void preprocess(Args &pmt,vector<vector<int>> &alg_used){
                     case ALG_BOYER_MOORE:
                         bm = true;
                         break;
+                    case ALG_WU_MANBER:
+                        wm = true;
+                        break;
                 }
             }
-            if(k or bm) strict_nxt[i] = init_strict_next(pmt.patterns[i], pmt.patt_size[i], ignore_case, strict_nxt[i]);
+            // Faz o preprocessamento de acordo com o algoritmo utilizado naquele padrão
+            if(k or bm) strict_nxt[i] = init_strict_next(pmt.patterns[i], pmt.patt_size[i], ignore_case, strict_nxt[i]);    
             if(bm){
                 bad_char[i] = init_bad_char(pmt.patterns[i], pmt.patt_size[i], ignore_case, bad_char[i]);
-                good_suffix[i] = init_good_suffix(pmt.patterns[i], pmt.patt_size[i], ignore_case, good_suffix[i], strict_nxt[i]);
+                good_suffix[i] = init_good_suffix(pmt.patterns[i], pmt.patt_size[i], ignore_case, good_suffix[i],strict_nxt[i]);
+            }
+            else if(wm){
+                C_wu[i] = char_mask(C_wu[i], pmt.patterns[i], pmt.patt_size[i]);
             }
         }
     }

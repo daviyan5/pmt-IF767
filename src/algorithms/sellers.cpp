@@ -8,36 +8,17 @@
 
 using namespace std;
 
-int* next_column(int *column, char *patt, int patt_size, char ch, bool ignore_case, int j = 0){
-    int *nxt;
+void next_column(int *column, char *patt, int patt_size, char ch, bool ignore_case, int *nxt){
+    int j = 0;
     int m = patt_size;
-
-    nxt = (int*)malloc((m + 1) * sizeof(int));
     for(int i = 0; i <= m; i++) nxt[i] = j;
 
     for(int i = 1; i <= m; i++){
         nxt[i] = min(column[i] + 1, min(nxt[i - 1] + 1, column[i - 1] + (int)(!isEqual(ch, patt[i - 1], ignore_case))));
     }
 
-    return nxt;
+    for(int i = 0; i <= m; i++) column[i] = nxt[i];
 }
-
-int edit_distance(char *text, char *patt, int text_size, int patt_size, bool ignore_case){
-    int n = text_size;
-    int m = patt_size;
-
-    int *column;
-    column = (int*)malloc((m + 1) * sizeof(int));
-    for(int i = 0; i <= m; i++) column[i] = i;
-
-    for(int j = 0; j < n; j++){
-        int *nxt = next_column(column, patt, patt_size, text[j], ignore_case, j + 1);
-        column = nxt;
-    }
-
-    return column[m];
-}
-
 
 alg_print_ret_sg sellers(char *text, char *patt, int patt_size, int text_size, int max_count, int distance, bool ignore_case){
     alg_print_ret_sg ret;
@@ -48,14 +29,13 @@ alg_print_ret_sg sellers(char *text, char *patt, int patt_size, int text_size, i
     int n = text_size;
     int m = patt_size;
 
-    int *column;
-    column = (int*)malloc((m + 1)*sizeof(int));
+    int *column = (int*)malloc((m + 1)*sizeof(int));
+    int *nxt = (int*) malloc((m + 1) * sizeof(int));
 
     for(int i = 0; i <= m; i++) column[i] = i;
 
     for(int j = 0; j < n; j++){
-        int *nxt = next_column(column, patt, patt_size, text[j], ignore_case);
-        column = nxt;
+        next_column(column, patt, patt_size, text[j], ignore_case, nxt);
 
         if(column[m] <= distance){
             ret.num_occ++;
@@ -65,6 +45,9 @@ alg_print_ret_sg sellers(char *text, char *patt, int patt_size, int text_size, i
 
         if(ret.num_occ == max_count) return ret;
     }
+
+    free(nxt);
+    free(column);
 
     return ret;
 }

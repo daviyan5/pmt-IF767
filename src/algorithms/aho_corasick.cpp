@@ -7,7 +7,7 @@
 #include "aho_corasick.hpp"
 
 
-
+// Algoritmo Aho - Corasick
 alg_print_ret_mul aho_corasick(char *text, int *patt_size, int num_patt, int text_size, bool ignore_case,
                                int **go_to,int *fail, int *qnt_occ, int **occ){
     alg_print_ret_mul ret;
@@ -17,7 +17,7 @@ alg_print_ret_mul aho_corasick(char *text, int *patt_size, int num_patt, int tex
     int node = 0, i = 0;
 
     while(i < n){
-        int ch = text[i];
+        int ch = ignore_case? tolower(text[i]):text[i];
         while(go_to[node][ch] < 0){
             node = fail[node];
         }
