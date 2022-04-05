@@ -237,7 +237,7 @@ void preprocess(Args &pmt,vector<vector<int>> &alg_used){
         }
     }
     // Se o algoritmo utilizado for aho-corasick
-    if(pmt.is_mult_patt and alg_used[0][0] == ALG_AHO_CORASICK){
+    if(alg_used[0][0] == ALG_AHO_CORASICK){
         build_go_to(pmt.patterns, pmt.patt_size, pmt.num_patt);
         build_failure(aho_go_to);
     }
