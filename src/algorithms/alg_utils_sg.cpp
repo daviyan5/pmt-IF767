@@ -121,8 +121,8 @@ void *prepare_sg_func(void *args){
     
     if(only_count){
         pthread_mutex_lock(&global_mutex);
-        if(is_out_file) fprintf(out_file,"\nIn %s, for %s: %d\n",params->file_name,params->patt,num_occ);
-        else printf("\nIn %s, for %s: %d\n",params->file_name,params->patt,num_occ);
+        if(is_out_file) fprintf(out_file,"\n%s, pat[%d]: %d\n",params->file_name,params->patt_idx,num_occ);
+        else printf("\n%s, pat[%d]: %d\n",params->file_name,params->patt_idx,num_occ);
         pthread_mutex_unlock(&global_mutex);
     }
     end = clock(); 
