@@ -5,7 +5,7 @@
 #include "boyermoore.hpp"
 
 
-alg_print_ret_sg boyermoore(char *txt, char *pat, int patt_size,int text_size, int max_count,bool ignore_case,int *bad_char,int *good_suffix){ 
+alg_print_ret_sg boyermoore(char *txt, char *pat, int patt_size,int text_size, int max_count,bool ignore_case,int *bc, int *gs){ 
     alg_print_ret_sg ret;
     ret.num_occ = 0;                                
     ret.occ = (int *) malloc(5 * sizeof(int)); 
@@ -30,10 +30,10 @@ alg_print_ret_sg boyermoore(char *txt, char *pat, int patt_size,int text_size, i
                 ret.num_occ++;
             }
             if(ret.num_occ == max_count) return ret;
-            i += good_suffix[m];
+            i += gs[m];
         }
         else{
-            i += max(good_suffix[j], j - bad_char[txt[i+j]]);
+            i += max(gs[j], j - bc[txt[i+j]]);
         }
     }
     

@@ -93,7 +93,7 @@ int* init_strict_next(char *pat, int patt_size, bool ignore_case, int *nxt){
 int *init_bad_char(char *pat, int patt_size, bool ignore_case,int *bc){
     int l = alpha_len; 
     int m = patt_size;
-    bc = (int*) malloc(l * sizeof(int));
+    bc = (int*) malloc((l+1) * sizeof(int));
     for(int i = 0; i < l; i++) bc[i] = -1;
     for(int i = 0; i < m; i++){
         bc[pat[i]] = i;
@@ -224,10 +224,10 @@ int *init_good_suffix(char *pat, int patt_size, bool ignore_case, int *gs,int *n
 // Inicia o preprocessamento dos padrões em todos os algoritmos utilizados
 void preprocess(Args &pmt,vector<vector<int>> &alg_used){
 
-    strict_nxt = (int**) malloc((pmt.num_patt) * sizeof(int*));
-    bad_char = (int**) malloc((pmt.num_patt) * sizeof(int*));
-    good_suffix = (int**) malloc((pmt.num_patt) * sizeof(int*));
-    C_wu = (long long **) malloc((pmt.num_patt) * sizeof(long long*));
+    strict_nxt = (int**) malloc((pmt.num_patt+1) * sizeof(int*));
+    bad_char = (int**) malloc((pmt.num_patt+1) * sizeof(int*));
+    good_suffix = (int**) malloc((pmt.num_patt+1) * sizeof(int*));
+    C_wu = (long long **) malloc((pmt.num_patt+1) * sizeof(long long*));
     // Se a flag ignore_case estiver ligada, transformamos todos os padrões em lowercase
     if(ignore_case){
         for(int i = 0; i < pmt.num_patt; i++){
