@@ -74,11 +74,13 @@ alg_print_ret_sg send_to_func_sg(alg_params_sg *params,char *text,int text_size,
 
 // Função principal, envia a thread com a linha para a função de casamento
 void *prepare_sg_func(void *args){
+    clock_t start, end;             // Contagem de tempo de execução da thread
+    start = clock();     
     alg_params_sg *params;
     params = (alg_params_sg*) args;
     int max_count = params->max_count;
 
-    clock_t start, end;
+   
     int num_occ = 0;
     
     char text[TEXT_MAX_SIZE];
@@ -97,7 +99,7 @@ void *prepare_sg_func(void *args){
             exit(1);
         }
     }
-    start = clock();
+    
 
     // Leitura do texto
     while(fgets(text,TEXT_MAX_SIZE,txt_file)){
@@ -116,14 +118,15 @@ void *prepare_sg_func(void *args){
         line_number += 1;
         free(temp.occ);
     }
-    end = clock();
-    double total_time = (double) (end - start) / CLOCKS_PER_SEC;
+    
     if(only_count){
         pthread_mutex_lock(&global_mutex);
         if(is_out_file) fprintf(out_file,"\nIn %s, for %s: %d\n",params->file_name,params->patt,num_occ);
         else printf("\nIn %s, for %s: %d\n",params->file_name,params->patt,num_occ);
         pthread_mutex_unlock(&global_mutex);
     }
+    end = clock(); 
+    double total_time = (double) (end - start) / CLOCKS_PER_SEC;
     if(show_stt){
         pthread_mutex_lock(&global_mutex);
         if(is_out_file) fprintf(out_file,"Spent time: %lf",total_time);

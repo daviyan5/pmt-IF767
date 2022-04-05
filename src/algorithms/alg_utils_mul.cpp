@@ -60,10 +60,12 @@ void free_temp(alg_print_ret_mul &temp,int num_patt){
 
 // Função de thread que envia para o casamento de múltiplos padrões
 void *prepare_mul_func(void *args){
+    clock_t start, end;                  // Contagem de tempo de execução da thread
+    start = clock();
     alg_params_mul *params;
     params = (alg_params_mul*) args;
 
-    clock_t start, end;
+    
     int *num_occ = (int*) calloc(params->num_patt,sizeof(int));
     
     char text[TEXT_MAX_SIZE];
@@ -83,7 +85,7 @@ void *prepare_mul_func(void *args){
         }
     }
     int total_occ = 0;
-    start = clock();
+    
 
     // Leitura do texto
     while(fgets(text,TEXT_MAX_SIZE,txt_file)){
@@ -106,7 +108,7 @@ void *prepare_mul_func(void *args){
         free_temp(temp,params->num_patt);
     }
     
-    end = clock();
+    
     double total_time = (double) (end - start) / CLOCKS_PER_SEC;
     if(only_count){
         pthread_mutex_lock(&global_mutex);
@@ -114,6 +116,8 @@ void *prepare_mul_func(void *args){
         else printf("\nIn %s: %d total occurrences.\n",params->file_name,total_occ);
         pthread_mutex_unlock(&global_mutex);
     }
+    end = clock();
+    double total_time = (double) (end - start) / CLOCKS_PER_SEC;
     if(show_stt){
         pthread_mutex_lock(&global_mutex);
         if(is_out_file) fprintf(out_file,"Spent time: %lf",total_time);
