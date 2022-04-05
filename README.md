@@ -2,7 +2,7 @@
 
 *Projeto da disciplina de Processamento de Cadeia de Caracteres (IF767)*
 
-PMT é uma ferramenta de casamento de padrões, inspirada no comando "**grep**" dos sistemas _UNIX/Linux_.
+PMT é uma ferramenta de casamento de padrões paralelizada, inspirada no comando "**grep**" dos sistemas _UNIX/Linux_.
 
 ## Dependências
 _GNU Compiler Collection (gcc)_ é requisitado para a execução.
