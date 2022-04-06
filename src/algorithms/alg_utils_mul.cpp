@@ -2,7 +2,7 @@
 #include "string.h"
 #include "stdlib.h"
 #include "pthread.h"
-#include "time.h"
+#include <chrono>
 
 #include "aho_corasick.hpp"
 
@@ -60,8 +60,7 @@ void free_temp(alg_print_ret_mul &temp,int num_patt){
 
 // Função de thread que envia para o casamento de múltiplos padrões
 void *prepare_mul_func(void *args){
-    clock_t start, end;                  // Contagem de tempo de execução da thread
-    start = clock();
+    auto t_start = std::chrono::high_resolution_clock::now();    // Tempo de execução
     alg_params_mul *params;
     params = (alg_params_mul*) args;
 
@@ -116,12 +115,12 @@ void *prepare_mul_func(void *args){
         else printf("\nIn %s: %d total occurrences.\n",params->file_name,total_occ);
         pthread_mutex_unlock(&global_mutex);
     }
-    end = clock();
-    double total_time = (double) (end - start) / CLOCKS_PER_SEC;
+    auto t_end = std::chrono::high_resolution_clock::now();
+    double total_time = std::chrono::duration<double, std::milli>(t_end-t_start).count() / 1000;
     if(show_stt){
         pthread_mutex_lock(&global_mutex);
-        if(is_out_file) fprintf(out_file,"Spent time: %lf\n",total_time);
-        else printf("Spent time: %lf\n",total_time);
+        if(is_out_file) fprintf(out_file,"Spent time: %lf s\n",total_time);
+        else printf("Spent time: %lf s\n",total_time);
         pthread_mutex_unlock(&global_mutex);
     }
     free(num_occ);
