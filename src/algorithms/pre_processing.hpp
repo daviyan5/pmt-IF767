@@ -51,10 +51,10 @@ public:
         if (size == 0) return -1;
         size -= 1;
         int temp_val = head->val;
-        FilaNode *temp = head;
-        head = head->next;
+        FilaNode *temp = head->next;
+        delete[] head;
+        head = temp;
         if (!head) rear = nullptr;
-        delete[] temp;
         return temp_val;
     }
     int front(){

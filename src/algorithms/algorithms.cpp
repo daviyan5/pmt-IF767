@@ -137,20 +137,7 @@ void free_all_sg(Args &pmt,vector<vector<int>> &alg_used){
             if(pmt.is_out_txt) free(threads_params_sg[i][j].out_file);            
         }
     }
-    for(int j = 0; j < pmt.num_patt; j++){
-        if(alg_used[0][j] == ALG_KMP or alg_used[0][j] == ALG_BOYER_MOORE) free(strict_nxt[j]);
-        if(alg_used[0][j] == ALG_BOYER_MOORE){
-            free(good_suffix[j]);
-            free(bad_char[j]);
-        }
-        if(alg_used[0][j] == ALG_WU_MANBER){
-            free(C_wu[j]);
-        }
-    }
-    free(C_wu);
-    free(strict_nxt);
-    free(good_suffix);
-    free(bad_char);
+    
 }
 
 // Limpa todos os ponteiros utilizados pelas threads de múltiplos padrões
@@ -165,20 +152,7 @@ void free_all_mul(Args &pmt){
         }
         free(threads_params_mul[i].patt);
     }
-    free(strict_nxt);
-    free(good_suffix);
-    free(bad_char);
-    free(C_wu);
-    for(int i = 0; i < occ_size; i++){
-        free(aho_occ[i]);
-    }
-    free(aho_occ);
-    for(int i = 0; i< size_goto; i++){
-        free(aho_go_to[i]);
-    }
-    free(aho_go_to);
-    free(aho_fail);
-    free(aho_qnt_occ);
+    
 }
 // Função principal do gerenciamento das threads
 void manage_algorithms(Args &pmt){
@@ -204,7 +178,7 @@ void manage_algorithms(Args &pmt){
     for(int i = 0; i < pmt.num_txt; i++) pmt_threads[i] = (pthread_t*) malloc(pmt.num_patt * sizeof (pthread_t));
 
     // Booleano para saber se o algoritmo utilizado é de múltiplos padrões 
-    bool is_mult_alg = alg_used[0][0] == ALG_AHO_CORASICK;
+    bool is_mult_alg = (alg_used[0][0] == ALG_AHO_CORASICK);
 
     if(pmt.show_info) debug(alg_used,pmt);
 
@@ -231,11 +205,43 @@ void manage_algorithms(Args &pmt){
         }
         free(pmt_threads[i]);  
     }
+
+    // Libera todos os ponteiros utilizados pela ferramenta.
     free(pmt_threads);
     pthread_mutex_destroy(&global_mutex);
     if(is_mult_alg) free_all_mul(pmt);
     else free_all_sg(pmt,alg_used);
-    for(int i = 1; i < pmt.num_patt; i++){
+    
+    
+    if(alg_used[0][0] == ALG_AHO_CORASICK){
+        for(int i = 0; i < occ_size; i++){
+            free(aho_occ[i]);
+        }
+        free(aho_occ);
+        for(int i = 0; i< size_goto; i++){
+            free(aho_go_to[i]);
+        }
+        free(aho_go_to);
+        if(pmt.num_patt > 1) free(aho_fail);
+        free(aho_qnt_occ);
+    }
+    else{
+        for(int j = 0; j < pmt.num_patt; j++){
+            if(alg_used[0][j] == ALG_KMP or alg_used[0][j] == ALG_BOYER_MOORE) free(strict_nxt[j]);
+            if(alg_used[0][j] == ALG_BOYER_MOORE){
+                free(good_suffix[j]);
+                free(bad_char[j]);
+            }
+            if(alg_used[0][j] == ALG_WU_MANBER){
+                free(C_wu[j]);
+            }
+        }
+    }
+    free(C_wu);
+    free(strict_nxt);
+    free(good_suffix);
+    free(bad_char);
+    for(int i = 0; i < pmt.num_patt and is_mult_alg and pmt.num_patt > 1; i++){
         free(pmt.patterns[i]);
     }
 }

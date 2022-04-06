@@ -47,6 +47,7 @@ struct alg_print_ret_sg{
 struct alg_print_ret_mul{
     int **occ;          // Índice das ocorrências, por padrão
     int *num_occ;       // Número de ocorrências, por padrão
+    int total_occ;
 };
 void blue();            
 void red();             

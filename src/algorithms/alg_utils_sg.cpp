@@ -56,7 +56,6 @@ alg_print_ret_sg send_to_func_sg(alg_params_sg *params,char *text,int text_size,
             return bruteforce(text,params->patt,patt_size,text_size,max_count,ignore_case);
             break;
         case ALG_KMP:
-
             return kmp(text,params->patt,patt_size,text_size,max_count,ignore_case,strict_nxt[params->patt_idx]);
             break;
         case ALG_SELLERS:

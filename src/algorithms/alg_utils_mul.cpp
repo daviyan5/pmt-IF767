@@ -88,17 +88,14 @@ void *prepare_mul_func(void *args){
 
     // Leitura do texto
     while(fgets(text,TEXT_MAX_SIZE,txt_file)){
+
         int text_size = strlen(text);
         alg_print_ret_mul temp = send_to_func_mul(params,text,text_size,patt_size);
-        bool some_occ = false;
-        int local_occ = 0;
-        for(int i = 0; i < params->num_patt; i++){
-            num_occ[i] += temp.num_occ[i];
-            local_occ += temp.num_occ[i];
-            if(temp.num_occ[i] > 0) some_occ = true;
-        }
+        
+        bool some_occ = temp.total_occ > 0;
+        int local_occ = temp.total_occ;
         total_occ += local_occ;
-        if(some_occ > 0 and !only_count){
+        if(some_occ  and !only_count){
             pthread_mutex_lock(&global_mutex);
             print_occ_mul(text,temp,local_occ,text_size,params->num_patt,line_number,patt_size,params->file_name,out_file);
             pthread_mutex_unlock(&global_mutex);
