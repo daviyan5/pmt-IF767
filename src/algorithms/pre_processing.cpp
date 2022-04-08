@@ -65,25 +65,25 @@ long long *char_mask(long long *C,char *patt, int patt_size){
 int* init_strict_next(char *pat, int patt_size, bool ignore_case, int *nxt){
     int m = patt_size;
     nxt = (int*) malloc((m + 1) * sizeof(int));
+    
     for(int i = 0; i <= m; i++) nxt[i] = -1;
 
-    if(m == 1 || (m > 1 && !isEqual(pat[0], pat[1], ignore_case))) nxt[1] = 0;
+    if(m == 1 || (m > 1 && pat[0] != pat[1])) nxt[1] = 0;
 
     int i = 1, j = 0;
     while(i + j < m){
-        while(i + j < m and isEqual(pat[i + j], pat[j], ignore_case)){
+        while(i + j < m and pat[i + j] == pat[j]){
             j++;
-            if(i + j == m || !isEqual(pat[i + j], pat[j], ignore_case)) nxt[i + j] = j;
+            if(i + j == m || (pat[i + j] != pat[j])) nxt[i + j] = j;
             else nxt[i + j] = nxt[j];
         }
 
-        if(j == 0 && ((i + 1 == m) || (!isEqual(pat[0], pat[i + 1], ignore_case)))){
+        if(j == 0 && ((i + 1 == m) || pat[0] != pat[i + 1])){
             nxt[i + 1] = 0;
         }
 
         i += (j - nxt[j]);
         j = max(0, nxt[j]);
-        
     }
 
     return nxt;
@@ -206,8 +206,7 @@ void build_failure(int **go_to){
     
 }
 
-int *init_good_suffix(char *pat, int patt_size, bool ignore_case, int *gs,int *ni){
-    
+int *init_good_suffix(char *pat, int patt_size, bool ignore_case, int *gs, int *ni){
     int m = patt_size;
     char *temp = strrev(pat, m);
     int *rni = init_strict_next(temp, m, ignore_case, rni);
@@ -218,10 +217,12 @@ int *init_good_suffix(char *pat, int patt_size, bool ignore_case, int *gs,int *n
         int j = ((m - 1) - rni[i] + (m+1)) % (m+1);
         if(i - rni[i] < gs[j]) gs[j] = i - rni[i];
     }
+
     free(temp);
     free(rni);
     return gs; 
 }
+
 // Inicia o preprocessamento dos padrões em todos os algoritmos utilizados
 void preprocess(Args &pmt,vector<vector<int>> &alg_used){
 
@@ -229,6 +230,7 @@ void preprocess(Args &pmt,vector<vector<int>> &alg_used){
     bad_char = (int**) malloc((pmt.num_patt+1) * sizeof(int*));
     good_suffix = (int**) malloc((pmt.num_patt+1) * sizeof(int*));
     C_wu = (long long **) malloc((pmt.num_patt+1) * sizeof(long long*));
+
     // Se a flag ignore_case estiver ligada, transformamos todos os padrões em lowercase
     if(ignore_case){
         for(int i = 0; i < pmt.num_patt; i++){
@@ -237,6 +239,7 @@ void preprocess(Args &pmt,vector<vector<int>> &alg_used){
             }
         }
     }
+
     // Se o algoritmo utilizado for aho-corasick
     if(alg_used[0][0] == ALG_AHO_CORASICK){
         build_go_to(pmt.patterns, pmt.patt_size, pmt.num_patt);
@@ -259,10 +262,12 @@ void preprocess(Args &pmt,vector<vector<int>> &alg_used){
                 }
             }
             // Faz o preprocessamento de acordo com o algoritmo utilizado naquele padrão
-            if(k or bm) strict_nxt[i] = init_strict_next(pmt.patterns[i], pmt.patt_size[i], ignore_case, strict_nxt[i]);    
+            if(k or bm){
+                strict_nxt[i] = init_strict_next(pmt.patterns[i], pmt.patt_size[i], ignore_case, strict_nxt[i]);
+            }    
             if(bm){
                 bad_char[i] = init_bad_char(pmt.patterns[i], pmt.patt_size[i], ignore_case, bad_char[i]);
-                good_suffix[i] = init_good_suffix(pmt.patterns[i], pmt.patt_size[i], ignore_case, good_suffix[i],strict_nxt[i]);
+                good_suffix[i] = init_good_suffix(pmt.patterns[i], pmt.patt_size[i], ignore_case, good_suffix[i], strict_nxt[i]);
             }
             else if(wm){
                 C_wu[i] = char_mask(C_wu[i], pmt.patterns[i], pmt.patt_size[i]);

@@ -19,8 +19,8 @@
 // Função para printar as ocorrências no texto
 void print_occ_sg(char *patt,char *text, int *occ, int num_occ, int text_size, int line_number, int patt_size, char *file_name,FILE *out_file){
     blue();
-    if(is_out_file) fprintf(out_file,"\n%d Occurrences of %s in Line %d of %s\n",num_occ,patt, line_number, file_name);
-    else printf("\n%d Occurrences of %s in Line %d of %s\n",num_occ,patt, line_number, file_name);
+    if(is_out_file) fprintf(out_file,"\n%d Occurrences of %.10s in Line %d of %s\n",num_occ,patt, line_number, file_name);
+    else printf("\n%d Occurrences of %.10s in Line %d of %s\n",num_occ,patt, line_number, file_name);
     default_colour();
     bool *paint = (bool*) calloc(text_size,sizeof(bool));
     int counter = 0;

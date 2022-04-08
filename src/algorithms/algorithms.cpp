@@ -49,9 +49,7 @@ int decide_alg(Args &pmt, int text_num, int patt_idx){
             else return ALG_WU_MANBER;
         }
         else{
-            if(pmt.patt_size[patt_idx] < 3) return ALG_BRUTE_FORCE;
-            else if(pmt.patt_size[patt_idx] >= 4 and pmt.patt_size[patt_idx] < 7 )return ALG_KMP;
-            else return ALG_BOYER_MOORE;
+            return ALG_BOYER_MOORE;
         }
     }
 }
