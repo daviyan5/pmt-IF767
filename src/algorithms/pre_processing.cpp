@@ -165,7 +165,7 @@ void build_go_to(vector<char*> &pat_set, vector<int> &patt_size, int qnt_pat){
 
 // Constroi o fail da trie
 void build_failure(int **go_to){
-    aho_fail = (int*) malloc((size_goto+1) * sizeof(int));
+    aho_fail = (int*) malloc((max(alpha_len+1,size_goto+1)) * sizeof(int));
     for(int i = 0; i < alpha_len; i++) aho_fail[i] = -1;
 
     Fila Q;
